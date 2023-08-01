@@ -1,0 +1,11 @@
+{
+  "manifest_version": 3,
+  "name": "Darker",
+  "version": "1.0",
+  "description": "Changes any website that you are visiting into its dark mode",
+  "action": {
+    "default_popup": "index.html"
+  },
+
+  "permissions": ["activeTab"]
+}

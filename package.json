@@ -8,10 +8,13 @@
     "dev": "yarn build && yarn post_build",
     "build": "tsc && vite build",
     "preview": "vite preview",
-    "post_build": "node postBuild.js"
+    "post_build": "node postBuild.js && yarn tsc src\\content-script.ts src\\service-worker.ts --target es2020 --module esnext --removeComments --useDefineForClassFields true --outDir dist"
   },
   "devDependencies": {
     "typescript": "^5.0.2",
     "vite": "^4.4.5"
+  },
+  "dependencies": {
+    "@types/chrome": "^0.0.243"
   }
 }

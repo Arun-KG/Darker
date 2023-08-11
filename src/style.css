@@ -1,0 +1,152 @@
+html {
+  overflow: hidden;
+  padding: 0;
+  background-color: white;
+  width: max-content;
+  font-family: 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
+}
+body{
+  background-color: #ffffff;
+  padding: 1em 1em 0em 1em;
+  margin: 0;
+  overflow: hidden;
+}
+
+#popup{
+  transition: all 500ms;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+
+}
+
+#enable_button{
+  z-index: 1;
+  padding: 1.2em;
+  border: none;
+  border-radius: 50%;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 800ms cubic-bezier(1, 0.01, 0, 0.99), box-shadow 800ms cubic-bezier(1, 0.01, 0, 0.99);
+  background-color: #414141 ;
+  user-select: none;
+
+  &:hover{
+    box-shadow: 0px 0px 10px 5px var(--hover-shadow-color);
+  }
+
+  > img{
+    width: 37px;
+    background-color: #414141;
+    border: solid 3px #ffffff;
+    border-radius: 13px;
+    transition: all 800ms cubic-bezier(1, 0.01, 0, 0.99);
+    -webkit-user-drag: none;
+  }
+}
+
+.bg-eff{
+  position: absolute;
+  top: 100px;
+  z-index: 0;
+  width: 400px;
+  height: 500px;
+  border-radius: 50%;
+  background-color: #414141;
+  filter: blur(20px);
+  transition: transform 800ms cubic-bezier(1, 0.01, 0, 0.99);
+}
+
+.bg-move{
+  transform: translate(0px, -400px);
+}
+
+.bg-white{
+  background-color: #ffffff !important;
+}
+
+.border-dark{
+  border-color: #414141 !important;
+}
+
+/* checkbox style */
+.container {
+  display: flex;
+  position: relative;
+  padding-left: 30px;
+  margin: 15px 0px;
+  cursor: pointer;
+  font-size: 15px;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+  color: #212121;
+  transition: color 800ms cubic-bezier(1, 0.01, 0, 0.99);
+}
+
+.color-light{
+  color: #ffffff !important; 
+}
+
+/* Hide the browser's default checkbox */
+.container input {
+  position: absolute;
+  opacity: 0;
+  cursor: pointer;
+  height: 0;
+  width: 0;
+}
+
+/* Create a custom checkbox */
+.checkmark {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 18px;
+  width: 18px;
+  border: solid 1px white;
+  border-radius: 7px;
+}
+
+/* On mouse-over, add a grey background color */
+.container:hover input ~ .checkmark {
+  background-color: #707070;
+}
+
+/* When the checkbox is checked, add a blue background */
+.container input:checked ~ .checkmark {
+  background-color: #424242;
+}
+
+/* Create the checkmark/indicator (hidden when not checked) */
+.checkmark:after {
+  content: "";
+  position: absolute;
+  display: none;
+}
+
+/* Show the checkmark when checked */
+.container input:checked ~ .checkmark:after {
+  display: block;
+}
+
+/* Style the checkmark/indicator */
+.container .checkmark:after {
+  left: 4px;
+  top: 4px;
+  width: 6px;
+  height: 6px;
+  border: solid white;
+  background-color: white;
+  border-radius: 3px;
+  border-width: 2px;
+
+  /* border-width: 0 2px 2px 0;
+  -webkit-transform: rotate(45deg);
+  -ms-transform: rotate(45deg);
+  transform: rotate(45deg); */
+}

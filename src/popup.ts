@@ -1,11 +1,29 @@
-// alert("Dfgf");
+let toggle = false;
 
-// const myButton = document.getElementById("btn");
+document.addEventListener("DOMContentLoaded", function () {
+  const darkenBtn = document.getElementById("enable_button");
+  const bgEffectContainer = document.querySelector(".bg-eff");
+  const buttonImage = document.querySelector(".btn-img");
+  const inputLabel = document.querySelector(".container");
 
-// if (myButton) {
-//   myButton.addEventListener("click", onClickHandler);
-// }
+  // onClick's logic below:
+  darkenBtn?.addEventListener("click", function () {
+    if (toggle) {
+      bgEffectContainer?.classList.remove("bg-move");
+      buttonImage?.classList.remove("border-dark");
+      darkenBtn?.classList.remove("bg-white");
+      darkenBtn?.style.setProperty("--hover-shadow-color", "#414141");
+      inputLabel?.classList.remove("color-light");
 
-// function onClickHandler(): void {
-//   console.log("sfdfds");
-// }
+      toggle = !toggle;
+    } else {
+      bgEffectContainer?.classList.add("bg-move");
+      buttonImage?.classList.add("border-dark");
+      darkenBtn?.classList.add("bg-white");
+      darkenBtn?.style.setProperty("--hover-shadow-color", "#ffffff");
+      inputLabel?.classList.add("color-light");
+
+      toggle = !toggle;
+    }
+  });
+});

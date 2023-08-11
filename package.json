@@ -4,7 +4,7 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "run": "vite",
+    "start": "vite",
     "dev": "yarn build && yarn post_build",
     "build": "tsc && vite build",
     "preview": "vite preview",

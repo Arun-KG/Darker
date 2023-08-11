@@ -3,13 +3,19 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="./src/style.css" />
   </head>
   <body>
-    <div id="app">
-      <form>
-        <button id="btn">Test</button>
-        <input type="checkbox" name="Test" id="" />
-      </form>
+    <div id="popup">
+      <div class="bg-eff"></div>
+      <button id="enable_button">
+        <img src="./public/icons/icon128.png" alt="Darken" class="btn-img" />
+      </button>
+      <label class="container"
+        >Remember This Site
+        <input type="checkbox" checked="checked" />
+        <span class="checkmark"></span>
+      </label>
     </div>
   </body>
   <script type="module" src="/src/popup.ts"></script>

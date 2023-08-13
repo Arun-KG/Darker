@@ -1,16 +1,55 @@
-console.log("service worker");
+(() => {
+  console.log("service worker");
 
-// Send message to a content script
-// (async () => {
-//   const [tab] = await chrome.tabs.query({ active: true, lastFocusedWindow: true });
+  enum MessageType {
+    CONTENT_SCRIPT,
+    POPUP,
+    SERVICE_WORKER,
+    EMPTY,
+  }
 
-//   const tabId: number = tab.id ? tab.id : 0;
-//   const response = await chrome.tabs.sendMessage(tabId, { greeting: "hello" });
-//   // do something with response here, not outside the function
-//   console.log(response);
-// })();
+  enum MessageCatagory {
+    REQUEST,
+    RESPONSE,
+    EMPTY,
+  }
 
-chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
-  console.log(sender.tab ? "from a content script:" + sender.tab.url : "from the extension");
-  if (request.greeting === "hello") sendResponse({ farewell: "goodbye" });
-});
+  type Message = {
+    from: MessageType;
+    to: MessageType;
+    catagory: MessageCatagory;
+    signature: string;
+    message: any | undefined;
+  };
+
+  chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
+    const req: Message = request;
+    console.log({ req, sender });
+
+    switch (req.from) {
+      case MessageType.POPUP: {
+        console.log("From popup to service worker");
+
+        break;
+      }
+      case MessageType.CONTENT_SCRIPT: {
+        console.log(sender.tab ? "from a content script:" + sender.tab.url : "from the extension");
+
+        let m_tempUrl: string = sender.tab?.url || "NULL";
+        let m_url = new URL(m_tempUrl);
+        console.log("Host: " + m_url.hostname);
+
+        const resp: Message = {
+          from: MessageType.SERVICE_WORKER,
+          to: MessageType.CONTENT_SCRIPT,
+          catagory: MessageCatagory.RESPONSE,
+          signature: "test",
+          message: `Response to ${req.message}`,
+        };
+        sendResponse(resp);
+
+        break;
+      }
+    }
+  });
+})();

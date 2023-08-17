@@ -56,13 +56,31 @@ document.addEventListener("DOMContentLoaded", function () {
     }
   }
 
-  async function sendMessageToContentScript(message: Message, callback: (response: Message) => void): Promise<void> {
+  async function SendMessageToContentScript(message: Message, callback: (response: Message) => void): Promise<void> {
     chrome.tabs.query({ active: true, currentWindow: true }, async function (tabs) {
       const tabId: number = tabs[0].id || 0;
-      const response = await chrome.tabs.sendMessage(tabId, message);
+      const response: Message = await chrome.tabs.sendMessage(tabId, message);
       callback(response);
     });
   }
+
+  // Initialization
+  (() => {
+    (async () => {
+      SendMessageToContentScript(
+        {
+          from: MessageType.POPUP,
+          to: MessageType.SERVICE_WORKER,
+          catagory: MessageCatagory.REQUEST,
+          signature: "POPUP_INITIALIZATION",
+          message: "popup initilization",
+        },
+        (response) => {
+          console.info(response);
+        }
+      );
+    })();
+  })();
 
   // onClick's logic below:
   darkenBtn?.addEventListener("click", function () {
@@ -72,61 +90,33 @@ document.addEventListener("DOMContentLoaded", function () {
       setUiMode(UiMode.DARK);
     }
 
-    (async () => {
-      chrome.tabs.query({ active: true, currentWindow: true }, async function (tabs) {
-        const tabId: number = tabs[0].id || 0;
-        console.log(tabId);
-
-        const req: Message = {
-          from: MessageType.POPUP,
-          to: MessageType.CONTENT_SCRIPT,
-          catagory: MessageCatagory.REQUEST,
-          signature: "TEST",
-          message: "test message from popup to content script",
-        };
-
-        const response = await chrome.tabs.sendMessage(tabId, req);
-        console.log(response as Message);
-      });
-    })();
+    SendMessageToContentScript(
+      {
+        from: MessageType.POPUP,
+        to: MessageType.CONTENT_SCRIPT,
+        catagory: MessageCatagory.REQUEST,
+        signature: "DARKEN_BUTTON_CLICK",
+        message: { action: "click" },
+      },
+      (response) => {
+        console.info(response);
+      }
+    );
   });
 
   // Remember site checkbox event listener
   rememberCheckbox?.addEventListener("change", () => {
-    const message: Message = {
-      from: MessageType.POPUP,
-      to: MessageType.CONTENT_SCRIPT,
-      catagory: MessageCatagory.REQUEST,
-      signature: "SAVE_SITE_NAME_TO_STORAGE",
-      message: { state: rememberCheckbox.checked },
-    };
-
-    sendMessageToContentScript(message, (response: Message) => {
-      console.log(response);
-    });
-
-    //================================================
-
-    // chrome.tabs.query({ active: true, currentWindow: true }, async function (tabs) {
-    //   const tabId: number = tabs[0].id || 0;
-    //   console.log(tabId);
-
-    //   const message: Message = {
-    //     from: MessageType.POPUP,
-    //     to: MessageType.CONTENT_SCRIPT,
-    //     catagory: MessageCatagory.REQUEST,
-    //     signature: "SAVE_SITE_NAME_TO_STORAGE",
-    //     message: { state: rememberCheckbox.checked },
-    //   };
-
-    //   const response = await chrome.tabs.sendMessage(tabId, message);
-    //   console.log(response as Message);
-
-    //   sendMessageToContentScript(message).then((resp) => {
-    //     console.log(resp);
-    //   });
-    // });
-
-    /////////////////////////////
+    SendMessageToContentScript(
+      {
+        from: MessageType.POPUP,
+        to: MessageType.CONTENT_SCRIPT,
+        catagory: MessageCatagory.REQUEST,
+        signature: "SAVE_SITE_NAME_TO_STORAGE",
+        message: { state: rememberCheckbox.checked },
+      },
+      (response) => {
+        console.log(response);
+      }
+    );
   });
 });

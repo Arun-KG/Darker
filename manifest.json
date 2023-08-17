@@ -17,5 +17,5 @@
     "service_worker": "service-worker.js",
     "type": "module"
   },
-  "permissions": ["scripting", "activeTab", "tabs"]
+  "permissions": ["scripting", "activeTab", "tabs", "storage"]
 }

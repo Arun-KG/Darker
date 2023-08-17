@@ -22,43 +22,79 @@
     message: any | undefined;
   };
 
-  (async () => {
-    const message: Message = {
-      from: MessageType.CONTENT_SCRIPT,
-      to: MessageType.SERVICE_WORKER,
-      catagory: MessageCatagory.REQUEST,
-      signature: "TEST",
-      message: "test message from content script",
-    };
-
+  async function SendMessageToServiceWorker(message: Message, callback: (response: Message) => void): Promise<void> {
     const response = await chrome.runtime.sendMessage(message);
-    // do something with response here, not outside the function
-    console.log(response as Message);
+
+    callback(response);
+  }
+
+  (async () => {
+    SendMessageToServiceWorker(
+      {
+        from: MessageType.CONTENT_SCRIPT,
+        to: MessageType.SERVICE_WORKER,
+        catagory: MessageCatagory.REQUEST,
+        signature: "PAGE_INITIALIZATION",
+        message: "test message from content script",
+      },
+      (response) => {
+        console.log(response);
+      }
+    );
   })();
 
-  chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
+  chrome.runtime.onMessage.addListener(function (request, _sender, sendResponse) {
     const req: Message = request;
-
-    console.log({ req, sender, sendResponse });
 
     switch (req.from) {
       case MessageType.POPUP: {
-        console.log("inside popup switch");
         switch (req.signature) {
           case "SAVE_SITE_NAME_TO_STORAGE": {
-            console.log("inner switch");
-            const resp: Message = {
-              from: MessageType.CONTENT_SCRIPT,
-              to: MessageType.POPUP,
-              catagory: MessageCatagory.RESPONSE,
-              signature: "SITE_NAME_SAVE_STATUS",
-              message: "//save function with boolean reaturn value//" + req.message,
-            };
-            sendResponse(resp);
+            SendMessageToServiceWorker(
+              {
+                from: MessageType.CONTENT_SCRIPT,
+                to: MessageType.SERVICE_WORKER,
+                catagory: req.catagory,
+                signature: req.signature,
+                message: req.message,
+              },
+              (response) => {
+                sendResponse(response);
+              }
+            );
 
             break;
           }
-          case "TEST": {
+          case "POPUP_INITIALIZATION": {
+            SendMessageToServiceWorker(
+              {
+                from: MessageType.CONTENT_SCRIPT,
+                to: MessageType.SERVICE_WORKER,
+                catagory: req.catagory,
+                signature: req.signature,
+                message: req.message,
+              },
+              (response) => {
+                sendResponse(response);
+              }
+            );
+
+            break;
+          }
+          case "DARKEN_BUTTON_CLICK": {
+            SendMessageToServiceWorker(
+              {
+                from: MessageType.CONTENT_SCRIPT,
+                to: MessageType.SERVICE_WORKER,
+                catagory: req.catagory,
+                signature: req.signature,
+                message: req.message,
+              },
+              (response) => {
+                sendResponse(response);
+              }
+            );
+
             break;
           }
         }

@@ -35,9 +35,10 @@
         to: MessageType.SERVICE_WORKER,
         catagory: MessageCatagory.REQUEST,
         signature: "PAGE_INITIALIZATION",
-        message: "test message from content script",
+        message: "Page Initialization req",
       },
       (response) => {
+        console.log("dfgfdgdf");
         console.log(response);
       }
     );
@@ -105,5 +106,6 @@
         break;
       }
     }
+    return true;
   });
 })();

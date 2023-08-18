@@ -8,23 +8,6 @@ document.addEventListener("DOMContentLoaded", function () {
 
   let toggle = false;
 
-  // Initialization
-  (function () {
-    (async () => {
-      const message: Message = {
-        from: MessageType.POPUP,
-        to: MessageType.SERVICE_WORKER,
-        catagory: MessageCatagory.REQUEST,
-        signature: "TEST",
-        message: "popup initilization",
-      };
-
-      const response = await chrome.runtime.sendMessage(message);
-      // do something with response here, not outside the function
-      console.log(response);
-    })();
-  })();
-
   const darkenBtn = document.getElementById("enable_button");
   const rememberCheckbox = document.getElementById("remember") as HTMLInputElement;
 
@@ -64,7 +47,7 @@ document.addEventListener("DOMContentLoaded", function () {
     });
   }
 
-  // Initialization
+  // Popup initialization
   (() => {
     (async () => {
       SendMessageToContentScript(
@@ -76,7 +59,13 @@ document.addEventListener("DOMContentLoaded", function () {
           message: "popup initilization",
         },
         (response) => {
-          console.info(response);
+          if (Object.keys(response.message).length === 0) {
+            rememberCheckbox.checked = false;
+            setUiMode(UiMode.LIGHT);
+          } else {
+            rememberCheckbox.checked = true;
+            setUiMode(UiMode.DARK);
+          }
         }
       );
     })();

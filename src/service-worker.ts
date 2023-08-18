@@ -27,7 +27,7 @@
   //chrome.storage.sync.clear();
   //####################################################################################
 
-  function GetData(key: string, callback: (result: any) => void) {
+  function GetData(key: string, callback: (result: any) => void): void {
     chrome.storage.sync.get(key).then((result) => {
       callback(result);
     });
@@ -41,17 +41,17 @@
     // });
   }
 
-  // function SetData(value: string) {
-  //   chrome.storage.sync.set({ [value]: value }).then(() => {
-  //     console.log("Value is set");
-  //   });
-  // }
+  function SetData(value: string) {
+    chrome.storage.sync.set({ [value]: value }).then(() => {
+      console.log("Value is set");
+    });
+  }
 
-  // function DeleteData(key: string) {
-  //   chrome.storage.sync.remove(key);
-  // }
+  function DeleteData(key: string) {
+    chrome.storage.sync.remove(key);
+  }
 
-  chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
+  chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     const req: Message = request;
 
     switch (req.from) {
@@ -66,50 +66,41 @@
             console.log(m_url.hostname);
 
             GetData(m_url.hostname, (dbRes) => {
-              console.log(dbRes);
+              sendResponse({
+                from: MessageType.SERVICE_WORKER,
+                to: MessageType.CONTENT_SCRIPT,
+                catagory: MessageCatagory.RESPONSE,
+                signature: "PAGE_INITIALIZATION_RESPONSE",
+                message: dbRes,
+              });
             });
-
-            const resp: Message = {
-              from: MessageType.SERVICE_WORKER,
-              to: MessageType.CONTENT_SCRIPT,
-              catagory: MessageCatagory.RESPONSE,
-              signature: "test",
-              message: `Response to ${req.message}`,
-            };
-            sendResponse(resp);
 
             break;
           }
           case "POPUP_INITIALIZATION": {
-            //console.log(sender.tab ? "from a content script:" + sender.tab.url : "from the extension");
-
             let m_tempUrl: string = sender.tab?.url || "NULL";
             let m_url = new URL(m_tempUrl);
-            //console.log("POPUP_INITIALIZATION Host: " + m_url.hostname);
 
-            GetData(m_url.hostname, (dbRes) => {
-              console.log(dbRes);
+            GetData(m_url.hostname, (res) => {
+              sendResponse({
+                from: MessageType.SERVICE_WORKER,
+                to: MessageType.CONTENT_SCRIPT,
+                catagory: MessageCatagory.RESPONSE,
+                signature: "POPUP_INITIALIZATION_RESPONSE",
+                message: res,
+              });
             });
-
-            const resp: Message = {
-              from: MessageType.SERVICE_WORKER,
-              to: MessageType.CONTENT_SCRIPT,
-              catagory: MessageCatagory.RESPONSE,
-              signature: "test",
-              message: `Response to ${req.message}`,
-            };
-            sendResponse(resp);
 
             break;
           }
           case "SAVE_SITE_NAME_TO_STORAGE": {
             //console.log(sender.tab ? "from a content script:" + sender.tab.url : "from the extension");
 
-            // let m_tempUrl: string = sender.tab?.url || "NULL";
-            //let m_url = new URL(m_tempUrl);
+            let m_tempUrl: string = sender.tab?.url || "NULL";
+            let m_url = new URL(m_tempUrl);
             //console.log("SAVE_SITE_NAME_TO_STORAGE Host: " + m_url.hostname);
             console.log("remember changed!");
-            //req.message.state ? SetData(m_url.hostname) : DeleteData(m_url.hostname);
+            req.message.state ? SetData(m_url.hostname) : DeleteData(m_url.hostname);
 
             // if (req.message.state) SetData(m_url.hostname);
             // else DeleteData(m_url.hostname);
@@ -126,22 +117,17 @@
             break;
           }
           case "DARKEN_BUTTON_CLICK": {
-            // chrome.storage.sync.clear(() => {
-            //   console.log("sync storage cleared");
-            //   chrome.storage.sync.get(null, (result) => {
-            //     console.log(result);
-            //   });
-            // });
-            //let m_tempUrl: string = sender.tab?.url || "NULL";
-            //let m_url = new URL(m_tempUrl);
-            //SetData(m_url.hostname);
+            chrome.storage.sync.get(null, (result) => {
+              console.log(result);
+            });
 
-            sendResponse({ msg: "Button click registed by the service worker" });
+            sendResponse("btn-clicked");
           }
         }
 
         break;
       }
     }
+    return true;
   });
 })();

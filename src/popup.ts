@@ -7,6 +7,7 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 
   let toggle = false;
+  let uiMode: UiMode;
 
   const darkenBtn = document.getElementById("enable_button");
   const rememberCheckbox = document.getElementById("remember") as HTMLInputElement;
@@ -27,6 +28,7 @@ document.addEventListener("DOMContentLoaded", function () {
       darkenBtn?.style.setProperty("--hover-shadow-color", "#ffffff");
 
       toggle = !toggle;
+      uiMode = UiMode.DARK;
     } else {
       bgEffectContainer?.classList.remove("bg-move");
       buttonImage?.classList.remove("border-dark");
@@ -36,6 +38,7 @@ document.addEventListener("DOMContentLoaded", function () {
       darkenBtn?.style.setProperty("--hover-shadow-color", "#414141");
 
       toggle = !toggle;
+      uiMode = UiMode.LIGHT;
     }
   }
 
@@ -85,7 +88,7 @@ document.addEventListener("DOMContentLoaded", function () {
         to: MessageType.CONTENT_SCRIPT,
         catagory: MessageCatagory.REQUEST,
         signature: "DARKEN_BUTTON_CLICK",
-        message: { action: "click" },
+        message: { uiMode },
       },
       (response) => {
         console.info(response);
@@ -105,6 +108,7 @@ document.addEventListener("DOMContentLoaded", function () {
       },
       (response) => {
         console.log(response);
+        if (uiMode === UiMode.LIGHT && rememberCheckbox.checked) setUiMode(UiMode.DARK);
       }
     );
   });

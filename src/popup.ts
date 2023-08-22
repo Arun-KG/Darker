@@ -6,7 +6,7 @@ document.addEventListener("DOMContentLoaded", function () {
     LIGHT,
   }
 
-  let toggle = false;
+  let toggle: boolean;
   let uiMode: UiMode;
 
   const darkenBtn = document.getElementById("enable_button");
@@ -18,7 +18,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
   darkenBtn?.style.setProperty("--hover-shadow-color", "#414141");
 
-  function setUiMode(mode: UiMode) {
+  function SetUiMode(mode: UiMode) {
     if (mode == UiMode.DARK) {
       bgEffectContainer?.classList.add("bg-move");
       buttonImage?.classList.add("border-dark");
@@ -63,11 +63,13 @@ document.addEventListener("DOMContentLoaded", function () {
         },
         (response) => {
           if (Object.keys(response.message).length === 0) {
+            toggle = true;
             rememberCheckbox.checked = false;
-            setUiMode(UiMode.LIGHT);
+            SetUiMode(UiMode.LIGHT);
           } else {
+            toggle = false;
             rememberCheckbox.checked = true;
-            setUiMode(UiMode.DARK);
+            SetUiMode(UiMode.DARK);
           }
         }
       );
@@ -77,27 +79,44 @@ document.addEventListener("DOMContentLoaded", function () {
   // onClick's logic below:
   darkenBtn?.addEventListener("click", function () {
     if (toggle) {
-      setUiMode(UiMode.LIGHT);
+      SetUiMode(UiMode.LIGHT);
+      SendMessageToContentScript(
+        {
+          from: MessageType.POPUP,
+          to: MessageType.CONTENT_SCRIPT,
+          catagory: MessageCatagory.REQUEST,
+          signature: "DARKEN_BUTTON_CLICK",
+          message: { uiMode },
+        },
+        (_response) => {
+          //SetUiMode(response.message.uiMode as UiMode);
+        }
+      );
     } else {
-      setUiMode(UiMode.DARK);
+      SetUiMode(UiMode.DARK);
+      SendMessageToContentScript(
+        {
+          from: MessageType.POPUP,
+          to: MessageType.CONTENT_SCRIPT,
+          catagory: MessageCatagory.REQUEST,
+          signature: "DARKEN_BUTTON_CLICK",
+          message: { uiMode },
+        },
+        (_response) => {
+          //SetUiMode(response.message.uiMode as UiMode);
+        }
+      );
     }
-
-    SendMessageToContentScript(
-      {
-        from: MessageType.POPUP,
-        to: MessageType.CONTENT_SCRIPT,
-        catagory: MessageCatagory.REQUEST,
-        signature: "DARKEN_BUTTON_CLICK",
-        message: { uiMode },
-      },
-      (response) => {
-        console.info(response);
-      }
-    );
   });
 
   // Remember site checkbox event listener
   rememberCheckbox?.addEventListener("change", () => {
+    // if (rememberCheckbox.checked) {
+    //   SetUiMode(UiMode.DARK);
+    // } else {
+    //   SetUiMode(UiMode.LIGHT);
+    // }
+
     SendMessageToContentScript(
       {
         from: MessageType.POPUP,
@@ -107,8 +126,7 @@ document.addEventListener("DOMContentLoaded", function () {
         message: { state: rememberCheckbox.checked },
       },
       (response) => {
-        console.log(response);
-        if (uiMode === UiMode.LIGHT && rememberCheckbox.checked) setUiMode(UiMode.DARK);
+        SetUiMode(response.message.mode == UiMode.DARK ? UiMode.DARK : UiMode.LIGHT);
       }
     );
   });

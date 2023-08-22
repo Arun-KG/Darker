@@ -28,6 +28,7 @@
     callback(response);
   }
 
+  // Page initialization
   (async () => {
     SendMessageToServiceWorker(
       {

@@ -78,15 +78,20 @@
     let m_url = new URL(m_tempUrl);
 
     function MakeSiteDark(dark: boolean): void {
+      chrome.scripting.removeCSS({
+        target: { tabId: sender.tab?.id || 0 },
+        files: ["darken.css"],
+      });
+
       if (dark) {
         chrome.scripting.insertCSS({
           target: { tabId: sender.tab?.id || 0 },
-          css: "html{ filter: invert(1) !important; }",
+          files: ["darken.css"],
         });
       } else {
         chrome.scripting.removeCSS({
           target: { tabId: sender.tab?.id || 0 },
-          css: "html{ filter: invert(1) !important; }",
+          files: ["darken.css"],
         });
       }
     }
@@ -102,9 +107,8 @@
           case "PAGE_INITIALIZATION": {
             GetCurrent((resp) => {
               if (resp.Current === m_url.hostname && resp.Current !== "NULL") {
-                MakeSiteDark(true);
-
                 SetCurrent(m_url.hostname);
+                MakeSiteDark(true);
 
                 sendResponse({
                   from: MessageType.SERVICE_WORKER,
@@ -162,31 +166,41 @@
             break;
           }
           case "SAVE_SITE_NAME_TO_STORAGE": {
-            //console.log(sender.tab ? "from a content script:" + sender.tab.url : "from the extension");
+            if (req.message.state) {
+              SetData(m_url.hostname);
+              SetCurrent(m_url.hostname);
+              MakeSiteDark(true);
 
-            //console.log("SAVE_SITE_NAME_TO_STORAGE Host: " + m_url.hostname);
-            console.log("remember changed!");
-            req.message.state ? SetData(m_url.hostname) : DeleteData(m_url.hostname);
+              sendResponse({
+                from: MessageType.SERVICE_WORKER,
+                to: MessageType.CONTENT_SCRIPT,
+                catagory: MessageCatagory.RESPONSE,
+                signature: "SAVE_SITE_NAME_TO_STORAGE_REOSPONSE",
+                message: { mode: UiMode.DARK },
+              });
+            } else {
+              console.log("else");
+              DeleteData(m_url.hostname);
+              SetCurrent("NULL");
+              MakeSiteDark(false);
 
-            // if (req.message.state) SetData(m_url.hostname);
-            // else DeleteData(m_url.hostname);
-
-            sendResponse({
-              from: MessageType.SERVICE_WORKER,
-              to: MessageType.CONTENT_SCRIPT,
-              catagory: MessageCatagory.RESPONSE,
-              signature: "test",
-              message: `Response to ${req.message.state}`,
-            });
+              sendResponse({
+                from: MessageType.SERVICE_WORKER,
+                to: MessageType.CONTENT_SCRIPT,
+                catagory: MessageCatagory.RESPONSE,
+                signature: "SAVE_SITE_NAME_TO_STORAGE_REOSPONSE",
+                message: { mode: UiMode.LIGHT },
+              });
+            }
 
             break;
           }
           case "DARKEN_BUTTON_CLICK": {
             //MakeSiteDark((req.message.uiMode as UiMode) === UiMode.LIGHT ? SiteMode.DARK : SiteMode.LIGHT);
-            SetCurrent(m_url.hostname);
 
             GetCurrent((resp) => {
-              if (resp.Current === m_url.hostname && resp.Current !== "NULL") {
+              if (resp.Current === "NULL" || resp.Current !== m_url.hostname) {
+                SetCurrent(m_url.hostname);
                 MakeSiteDark(true);
 
                 sendResponse({
@@ -198,6 +212,7 @@
                 });
               } else {
                 SetCurrent("NULL");
+                MakeSiteDark(false);
 
                 sendResponse({
                   from: MessageType.SERVICE_WORKER,

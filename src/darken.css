@@ -1,0 +1,10 @@
+html {
+  filter: invert(1) !important;
+}
+
+img,
+svg,
+iframe,
+video {
+  filter: invert(1) !important;
+}

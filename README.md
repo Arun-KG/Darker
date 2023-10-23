@@ -1,2 +1,2 @@
 # Darker
-Changes any website that you are visiting into its dark mode
+A chrome extension to changes any website that you are visiting into dark mode
